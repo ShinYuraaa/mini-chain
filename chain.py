@@ -1,7 +1,6 @@
-# chain.py
 import hashlib, time, json
 from dataclasses import dataclass
-from typing import List
+from typing import List, Tuple   # tambah Tuple
 
 def sha256_hex(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
@@ -9,7 +8,6 @@ def sha256_hex(b: bytes) -> str:
 def merkle_root(txs: List[dict]) -> str:
     # Daun = SHA-256(JSON tx, sort keys)
     level = [sha256_hex(json.dumps(tx, sort_keys=True).encode()) for tx in txs] or ["0"*64]
-    # TODO: jika jumlah ganjil, duplikasi daun terakhir
     while len(level) > 1:
         if len(level) % 2 == 1:
             level.append(level[-1])  # duplikasi daun terakhir
@@ -20,6 +18,39 @@ def merkle_root(txs: List[dict]) -> str:
             nxt.append(sha256_hex(left + right))
         level = nxt
     return level[0]
+
+# ===================== MERKLE PROOF =====================
+def merkle_proof(txs: List[dict], index: int) -> List[Tuple[str, str]]:
+    """Return list of (sibling_hash, position) from leaf->root."""
+    if not txs:
+        return []
+    level = [sha256_hex(json.dumps(tx, sort_keys=True).encode()) for tx in txs]
+    idx = index
+    proof = []
+    while len(level) > 1:
+        if len(level) % 2 == 1:
+            level.append(level[-1])
+        pair_idx = idx ^ 1
+        position = "right" if pair_idx > idx else "left"
+        sibling = level[pair_idx]
+        proof.append((sibling, position))
+        # naik level
+        idx //= 2
+        nxt = []
+        for i in range(0, len(level), 2):
+            nxt.append(sha256_hex(bytes.fromhex(level[i]) + bytes.fromhex(level[i+1])))
+        level = nxt
+    return proof
+
+def verify_proof(leaf_tx: dict, proof: List[Tuple[str, str]], root_hex: str) -> bool:
+    digest = sha256_hex(json.dumps(leaf_tx, sort_keys=True).encode())
+    for sib, pos in proof:
+        if pos == "right":
+            digest = sha256_hex(bytes.fromhex(digest) + bytes.fromhex(sib))
+        else:  # left
+            digest = sha256_hex(bytes.fromhex(sib) + bytes.fromhex(digest))
+    return digest == root_hex
+# ========================================================
 
 @dataclass
 class BlockHeader:
@@ -58,13 +89,10 @@ def mine_block(prev: Block, txs: List[dict], difficulty: int) -> Block:
         nonce += 1  # bukti kerja sederhana
 
 def validate_block(prev: Block, blk: Block) -> bool:
-    # Link prev
     if blk.header.prev_hash != prev.header.hash():
         return False
-    # PoW
     if not blk.header.hash().startswith("0" * blk.header.difficulty):
         return False
-    # Merkle
     if blk.header.merkle_root != merkle_root(blk.txs):
         return False
     return True
@@ -87,3 +115,9 @@ if __name__ == "__main__":
     new_blk = mine_block(genesis, txs, difficulty=3)
     print("Block hash:", new_blk.header.hash())
     print("Valid chain?", validate_chain([genesis, new_blk]))
+
+    # DEMO PROOF
+    root = merkle_root(txs)
+    proof = merkle_proof(txs, 2)  # transaksi index ke-2
+    print("Proof untuk TX[2]:", proof)
+    print("Verifikasi proof:", verify_proof(txs[2], proof, root))
