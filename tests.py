@@ -1,4 +1,4 @@
-# test_blockchain.py
+# tests.py
 from chain import merkle_root, Block, BlockHeader, mine_block, validate_chain
 from chain import sha256_hex
 import time, json, sys
