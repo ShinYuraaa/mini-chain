@@ -1,5 +1,5 @@
 # chain.py
-# dengan menggunakan Markle proof
+# dengan menggunakan proof
 import hashlib, time, json
 from dataclasses import dataclass
 from typing import List, Tuple   # tambah Tuple
