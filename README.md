@@ -1,201 +1,195 @@
-# mini-chain
-Implementasi mini-chain menggunakan python
+# Mini Chain - Simple Blockchain Implementation
 
-# Mini Chain - Implementasi Blockchain Sederhana
+Implementasi blockchain sederhana dalam Python untuk mempelajari konsep dasar blockchain seperti Proof-of-Work, Merkle Tree, Chain Validation, dan Fork Simulation.
 
-Implementasi blockchain sederhana dalam Python untuk pembelajaran konsep dasar blockchain termasuk **Proof-of-Work**, **Merkle Tree**, dan **Chain Validation**.
+## Struktur File
 
-## Struktur Proyek
-
-`
+```
 mini-chain/
- chain.py          # Core blockchain implementation
- tests.py          # Test suite untuk blockchain
- README.md         # Dokumentasi ini
- .venv/            # Python virtual environment
-`
+├── chain.py      - Core blockchain implementation
+├── tests.py      - Test suite untuk semua komponen
+├── cli.py        - Command line interface
+├── fork_sim.py   - Simulasi blockchain fork
+└── README.md     - Dokumentasi ini
+```
 
-## Quick Start
+## Setup Environment
 
-### Prerequisites
-- Python 3.7+
-- PowerShell (Windows)
+Pastikan Python 3.7+ sudah terinstall, lalu:
 
-### Instalasi & Menjalankan
-
-`powershell
-# 1. Setup environment
+```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
+```
 
-# 2. Jalankan blockchain demo
+## File Descriptions
+
+### chain.py - Core Blockchain
+
+File ini berisi implementasi inti blockchain dengan komponen-komponen fundamental:
+
+**Apa yang ada di dalamnya:**
+- Class Block dan BlockHeader untuk struktur data blockchain
+- Fungsi merkle_root() untuk membuat hash tree dari transaksi
+- Fungsi merkle_proof() dan verify_proof() untuk membuktikan keberadaan transaksi
+- Fungsi mine_block() untuk mining dengan Proof-of-Work
+- Fungsi validate_chain() untuk validasi integritas blockchain
+
+**Cara menjalankan:**
+```powershell
 python chain.py
+```
 
-# 3. Jalankan test suite
+**Hasil yang diharapkan:**
+Program akan menampilkan hash block yang dimined, validasi chain, dan demo Merkle proof.
+
+### tests.py - Test Suite
+
+File ini berisi test komprehensif untuk memastikan semua komponen blockchain bekerja dengan benar.
+
+**Yang ditest:**
+- Hash calculation untuk setiap transaksi
+- Konstruksi Merkle tree step by step
+- Perhitungan Merkle root
+- Functionality Merkle proof
+- Mining Proof-of-Work dan validasi chain
+
+**Cara menjalankan:**
+```powershell
 python tests.py
-`
+```
 
----
+**Hasil yang diharapkan:**
+Semua test akan berjalan dan menampilkan "ALL TESTS PASSED!" jika semua komponen bekerja dengan benar.
 
-## chain.py - Core Blockchain
+### cli.py - Command Line Interface
 
-### Konsep Utama
+File ini menyediakan interface command line untuk berinteraksi dengan blockchain. Anda bisa mengatur difficulty mining dan melihat demo lengkap blockchain.
 
-| Komponen | Deskripsi | Implementasi |
-|----------|-----------|--------------|
-| **Block** | Unit data blockchain | class Block + class BlockHeader |
-| **Merkle Tree** | Struktur hash transaksi | merkle_root() function |
-| **Proof-of-Work** | Mining mechanism | mine_block() function |
-| **Validation** | Verifikasi chain | validate_chain() function |
+**Fitur:**
+- Buat genesis block secara otomatis
+- Set custom difficulty untuk mining
+- Process sample transactions
+- Demo Merkle proof generation dan verification
+- Validasi blockchain yang dibuat
 
-### Cara Menjalankan
+**Cara menjalankan:**
+```powershell
+# Dengan difficulty default (3)
+python cli.py
 
-`powershell
-python chain.py
-`
+# Dengan difficulty yang lebih mudah untuk testing
+python cli.py --difficulty 2
 
-**Output:**
-`
-Block hash: 000823826f894ef1f9e9e02fc1b64caf0f3da015e282fdddb1990aa9e771f423
-Valid chain? True
-`
+# Lihat help
+python cli.py --help
+```
 
-### Konsep Singkat
+**Hasil yang diharapkan:**
+Program akan menampilkan transaksi yang diverifikasi, Merkle root, proof, dan status validasi chain.
 
-1. **Genesis Block**: Block pertama dengan hash previous "0"*64
-2. **Mining**: Mencari nonce hingga hash dimulai dengan "000" (difficulty 3)  
-3. **Merkle Root**: SHA-256 tree dari semua transaksi
-4. **Chain Linking**: Setiap block reference hash block sebelumnya
+### fork_sim.py - Fork Simulation
 
-### Data Flow
+File ini mensimulasikan bagaimana blockchain fork terjadi dan bagaimana chain reorganization bekerja. Ini penting untuk memahami konsep "longest chain rule".
 
-`
-Transactions  Merkle Tree  Block Header  Mining (PoW)  Validation
-`
+**Yang disimulasikan:**
+- Pembuatan genesis block
+- Fork creation (multiple chains dari genesis)
+- Kompetisi antar chains
+- Automatic reorganization ke chain dengan work terbesar
+- Perhitungan cumulative work
 
----
+**Konsep yang dipelajari:**
+- Bagaimana blockchain fork terjadi
+- Kapan dan mengapa chain reorganization happens
+- Longest chain rule dalam consensus Proof-of-Work
+- Perhitungan total work dalam blockchain
 
-## tests.py - Test Suite  
+**Cara menjalankan:**
+```powershell
+# Dengan difficulty default (3) - lebih realistis tapi lambat
+python fork_sim.py
 
-### Test Categories
+# Dengan difficulty rendah untuk testing cepat
+python fork_sim.py --difficulty 2
 
-| Test                 | Purpose             | Verifikasi                 |
-|----------------------|---------------------|----------------------------|
-| **Transaction Hash** | Konsistensi hashing | SHA-256 per transaksi      |
-| **Merkle Tree**      | Struktur tree       | Intermediate & root hashes |
-| **Mining**           | Proof-of-Work       | Hash starts with "000"     |
-| **Chain Validation** | Integritas chain    | Block linking              |
+# Lihat help
+python fork_sim.py --help
+```
 
-### Cara Menjalankan
+**Hasil yang diharapkan:**
+Simulasi akan menunjukkan:
+1. Genesis block dibuat
+2. Dua fork (A1 dan B1) dibuat dari genesis
+3. Block B2 ditambahkan ke chain B
+4. Chain reorganization terjadi karena chain B lebih panjang
+5. Best chain beralih dari A1 ke B2
 
-`powershell
-python tests.py
-`
+## Learning Path
 
-**Output:**
-`
-Starting blockchain tests
+Disarankan untuk mempelajari file-file ini dalam urutan berikut:
 
-Testing transaction hash calculations
-Hash values differ due to JSON format differences (this is OK)
-
-Testing merkle tree intermediate hashes
- Intermediate hashes calculated successfully with our format
-
-Testing merkle root calculation
- Merkle root calculation works consistently
-
-Testing proof-of-work and chain validation
-Mining new block (this may take a few seconds)...
-Mined block hash: 000d5a628543edd39d602db1c78e82f895ac41afc3897f679dda7808ea695bed
- PoW mining and chain validation successful
-
-ALL TESTS PASSED!
-Your blockchain implementation is working correctly!
-`
-
-**Fungsi:**
-- Memverifikasi semua komponen blockchain
-- Cross-reference dengan expected hash values  
-- Testing mining dan chain validation
-
----
+1. **Mulai dengan chain.py** - Pahami komponen dasar blockchain
+2. **Jalankan tests.py** - Pastikan pemahaman dengan melihat test
+3. **Coba cli.py** - Eksperimen dengan berbagai difficulty
+4. **Pelajari fork_sim.py** - Pahami konsep advanced seperti fork dan reorg
 
 ## Konsep Blockchain yang Diimplementasikan
 
-### 1. Proof of Work (PoW)
-`python
-# Mining: mencari nonce hingga hash dimulai dengan "000"
-while True:
-    hash = sha256(block_data + nonce)
-    if hash.startswith("000"):
-        return block  # Found valid block!
-    nonce += 1
-`
+### Proof of Work
+Mining dilakukan dengan mencari nonce yang membuat hash block dimulai dengan sejumlah zero tertentu. Semakin banyak zero yang dibutuhkan, semakin sulit mining-nya.
 
-### 2. Merkle Tree
-`python
-# Bottom-up hash tree construction
-level = [hash(tx) for tx in transactions]
-while len(level) > 1:
-    level = [hash(left + right) for left, right in pairs(level)]
-return level[0]  # Merkle root
-`
+### Merkle Tree
+Struktur hash tree yang memungkinkan verifikasi keberadaan transaksi tanpa perlu download seluruh block. Setiap leaf adalah hash transaksi, dan setiap node adalah hash dari dua child nodes.
 
-### 3. Chain Validation
-`python
-# Each block must reference previous block hash
-for i in range(1, len(chain)):
-    if chain[i].prev_hash != chain[i-1].hash():
-        return False  # Invalid chain!
-`
+### Chain Validation
+Setiap block harus reference hash dari block sebelumnya. Jika ada block yang hash reference-nya salah, maka chain dianggap invalid.
 
-## Demo Workflow
+### Fork dan Reorganization
+Ketika ada dua chain yang valid, sistem akan memilih chain dengan total work terbesar. Jika chain yang lebih pendek tiba-tiba menjadi lebih panjang, sistem akan reorganize ke chain tersebut.
 
-`
-[Genesis Block]  [Create Transactions]  [Calculate Merkle Root] 
-       
-[Mining PoW]  [New Block Created]  [Validate Chain]  [Success]
-`
+## Performance Notes
 
-## Performance
-
-| Operation        | Time    | Description             |
-|------------------|---------|-------------------------|
-| Transaction Hash | 0.001s  | SHA-256 per transaction |
-| Merkle Tree      | 0.002s  | 4 transactions          |
-| Mining (diff=3)  | 2-10s   | Hardware dependent      |
-| Chain Validation | 0.001s  | Per block               |
+- Transaction hashing sangat cepat (kurang dari 1ms)
+- Merkle tree construction juga cepat untuk jumlah transaksi kecil
+- Mining time tergantung difficulty dan hardware
+- Difficulty 1-2 cocok untuk testing (detik)
+- Difficulty 3+ lebih realistis tapi butuh waktu lebih lama (menit)
 
 ## Troubleshooting
 
-### Hash Mismatch (Normal)
-`
-Expected: be58c7d8bc7f60c3...
-Actual:   9e193bab9275df49...
-`
-**Solusi**: Ini normal karena JSON format differences. Yang penting blockchain functionality works.
-
-### PowerShell Execution Policy
-`powershell
+### PowerShell Execution Policy Error
+Jika mendapat error saat menjalankan script di PowerShell:
+```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-`
+```
 
 ### Mining Terlalu Lama
-Turunkan difficulty dari 3 ke 2 untuk testing.
+Jika mining memakan waktu terlalu lama, turunkan difficulty:
+- Gunakan --difficulty 1 atau --difficulty 2 untuk testing cepat
+- Difficulty 3 dan lebih tinggi untuk pengalaman yang lebih realistis
 
----
+### Hash Values Berbeda di Test
+Ini normal karena perbedaan format JSON serialization. Yang penting adalah functionality blockchain tetap bekerja dengan benar.
+
+## What You'll Learn
+
+Dengan mempelajari implementasi ini, Anda akan memahami:
+- Bagaimana cryptographic hashing bekerja dalam blockchain
+- Struktur data Merkle tree dan kegunaannya
+- Algoritma consensus Proof-of-Work
+- Bagaimana distributed system menangani fork dan reorganization
+- Pentingnya testing dalam development blockchain
 
 ## Next Steps
 
-- [ ] Network implementation (P2P)
-- [ ] Database persistence  
-- [ ] REST API
-- [ ] Web interface
-- [ ] Digital signatures
+Setelah memahami implementasi dasar ini, Anda bisa mengembangkan lebih lanjut:
+- Tambahkan network layer untuk komunikasi P2P
+- Implementasikan database persistence
+- Buat REST API untuk web interface
+- Tambahkan digital signatures untuk keamanan transaksi
+- Simulasikan multi-node network
 
 ---
 
-**Selamat belajar blockchain!**
-
-*Simple implementation, powerful concepts.*
+Happy learning blockchain!
